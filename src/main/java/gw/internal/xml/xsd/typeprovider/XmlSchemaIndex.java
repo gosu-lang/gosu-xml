@@ -1103,7 +1103,7 @@ public class XmlSchemaIndex<T> {
       _indexed = true;
       try {
         readSchema( _schemaEF, null, caches );
-        //TODO do we need this?
+        //TODO FIXME do we need this?
 //        if (!CommonServices.getPlatformHelper().isInIDE()) {
 //          validate( caches );
 //        }
@@ -1876,11 +1876,12 @@ public class XmlSchemaIndex<T> {
   }
 
   private static Iterable<? extends IFile> getSchemaLocationsFiles(IModule module) {
+    //TODO FIXME do we need this?
 //    if (CommonServices.getPlatformHelper().isInIDE()) {
 //      module = TypeSystem.getGlobalModule();
 //    }
     Set<IFile> result = new LinkedHashSet<IFile>();
-    result.addAll(findAllFiles("config/xml/schemalocations.xml", null)); //TODO module.getRoots()));
+    result.addAll(findAllFiles("config/xml/schemalocations.xml", null)); //TODO FIXME module.getRoots()));
 
     // XML module itself now has this file inside "sources path"
     result.addAll(findAllFiles("xml/schemalocations.xml", module.getSourcePath()));
