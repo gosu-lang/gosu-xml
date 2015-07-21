@@ -22,7 +22,6 @@ import gw.util.concurrent.LockingLazyVar;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
@@ -159,7 +158,7 @@ public abstract class XmlSchemaResourceTypeLoaderBase<T> extends TypeLoaderBase 
   protected Map<String,IFile> loadAllSchemaNamespaces() {
     Map<String,IFile> allSchemaNamespaces = new HashMap<String, IFile>();
     HashMap<String,IDirectory> nonOverridden = getNonOverriddenCollectionPaths();
-    List<Pair<String,IFile>> pairs = null; //TODO FIXME getModule().getFileRepository().findAllFilesByExtension(_fileExtension);
+    List<Pair<String,IFile>> pairs = XmlSchemaIndex.findAllFilesByExtension( getModule(), _fileExtension );
     for ( Pair<String, IFile> pair : pairs ) {
       IFile file = pair.getSecond();
       String packageName = pair.getFirst();
@@ -185,7 +184,7 @@ public abstract class XmlSchemaResourceTypeLoaderBase<T> extends TypeLoaderBase 
 
   private HashMap<String, IDirectory> getNonOverriddenCollectionPaths() {
     HashMap<String, IDirectory> map = new HashMap<String, IDirectory>();
-    List<Pair<String,IFile>> pairs = null; //TODO FIXME getModule().getFileRepository().findAllFilesByExtension(WSC_EXTENSION);
+    List<Pair<String,IFile>> pairs = XmlSchemaIndex.findAllFilesByExtension( getModule(), WSC_EXTENSION );
     for ( Pair<String, IFile> pair : pairs ) {
       IFile file = pair.getSecond();
       IDirectory dir = file.getParent().dir(file.getBaseName());
@@ -218,7 +217,7 @@ public abstract class XmlSchemaResourceTypeLoaderBase<T> extends TypeLoaderBase 
     List<XmlSchemaIndex> schemaIndexes = new ArrayList<XmlSchemaIndex>();
     for ( IFile resourceFile : resourceFiles ) {
       try {
-        String relativePath = null; //TODO FIXME TypeSystem.getGlobalModule().getFileRepository().getResourceName(resourceFile.toURI().toURL());
+        String relativePath = XmlSchemaIndex.getResourceName( TypeSystem.getGlobalModule(), resourceFile.toURI().toURL() );
         String packageName = convertPathToPackage( relativePath );
         String schemaNamespace = XmlSchemaIndex.normalizeSchemaNamespace( packageName, relativePath );
         XmlSchemaIndex<T> schemaIndex = addSchemaToCacheIfNeeded( schemaNamespace, resourceFile, caches );
@@ -531,17 +530,19 @@ public abstract class XmlSchemaResourceTypeLoaderBase<T> extends TypeLoaderBase 
   }
 
   @Override
-  public String[] getTypesForFile(IFile file) {
-    String type = null; //TODO FIXME TypeSystem.getGlobalModule().pathRelativeToRoot(file.getParent());
-    String packageName = (type.replace('/', '.') + '.' + file.getBaseName()).toLowerCase();
-    XmlSchemaIndex<?> index = getSchemaForNamespace(packageName);
-    if (index != null) {
-      Set<String> allTypeNames = index.getAllTypeNames(null);
-      return allTypeNames.toArray(new String[allTypeNames.size()]);
+  public String[] getTypesForFile(IFile file)
+  {
+    String type = XmlSchemaIndex.getPathRelativeToRoot( TypeSystem.getGlobalModule(), file.getParent() );
+    String packageName = (type.replace( '/', '.' ) + '.' + file.getBaseName()).toLowerCase();
+    XmlSchemaIndex<?> index = getSchemaForNamespace( packageName );
+    if( index != null )
+    {
+      Set<String> allTypeNames = index.getAllTypeNames( null );
+      return allTypeNames.toArray( new String[allTypeNames.size()] );
     }
 
     // No schema index yet -- must be a new type, need to refresh namespace type at least
-    return new String[] { packageName };
+    return new String[]{packageName};
   }
 
   protected void createdType( String typeName ) {
@@ -577,7 +578,7 @@ public abstract class XmlSchemaResourceTypeLoaderBase<T> extends TypeLoaderBase 
     for ( Map.Entry<String, IFile> entry : loadAllSchemaNamespaces().entrySet() ) {
       IFile schemaSourceFile = entry.getValue();
       URL url = schemaSourceFile.toURI().toURL();
-      String resourceName = null; //TODO FIXME getModule().getFileRepository().getResourceName( url );
+      String resourceName = XmlSchemaIndex.getResourceName( getModule(), url );
       verifySchemaSourceFile( entry.getKey(), schemaSourceFile, errorMessages, resourceName, url );
     }
     return errorMessages;

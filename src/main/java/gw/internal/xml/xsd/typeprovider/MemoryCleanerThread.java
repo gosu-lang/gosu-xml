@@ -54,20 +54,20 @@ public class MemoryCleanerThread extends Thread {
   }
 
   public static synchronized void invokeLater( Runnable r ) {
-    if (!ExecutionMode.isIDE()) { //TODO FIXME TypeSystem.isSingleModuleMode()) {
+    if (!ExecutionMode.isIDE()) { 
       _todo.add( r );
       MemoryCleanerThread.class.notifyAll();
     }
   }
 
   public static void startThread() {
-    if (!ExecutionMode.isIDE()) { //TODO FIXME TypeSystem.isSingleModuleMode()) {
+    if (!ExecutionMode.isIDE()) { 
       new MemoryCleanerThread().start();
     }
   }
 
   public static synchronized void stopCleaner() {
-    if (!ExecutionMode.isIDE()) { //TODO FIXME TypeSystem.isSingleModuleMode()) {
+    if (!ExecutionMode.isIDE()) { 
       stop = true;
       MemoryCleanerThread.class.notifyAll();
     }

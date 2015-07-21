@@ -5,8 +5,10 @@
 package gw.internal.xml.xsd.typeprovider;
 
 import gw.config.CommonServices;
+import gw.config.ExecutionMode;
 import gw.fs.IDirectory;
 import gw.fs.IFile;
+import gw.fs.IResource;
 import gw.internal.ext.org.apache.xerces.jaxp.validation.XMLSchemaFactory;
 import gw.internal.schema.gw.xsd.config.xml.schemalocations.Schemalocations;
 import gw.internal.schema.gw.xsd.config.xml.schemalocations.anonymous.elements.Schemalocations_Schema;
@@ -966,7 +968,7 @@ public class XmlSchemaIndex<T> {
 //      IModule currentModule = TypeSystem.getExecutionEnvironment().getModule( schemaUrl );
       if ( isInclude ) {
         schema = XmlElement.parse( schemaUrl );
-        String fakeUrl = "file:/" + null; // TODO FIXMEcurrentModule.getFileRepository().getResourceName( schemaUrl );
+        String fakeUrl = "file:/" + getResourceName( currentModule, schemaUrl );
         addSchema( allSchemas, schema, fakeUrl, fakeExternalLocationAliases, seenResources, schemaUrl, currentModule );
       }
       else {
@@ -987,7 +989,7 @@ public class XmlSchemaIndex<T> {
   }
 
   private static void addSchemaOrWsdl( URL schemaUrl, Set<URL> seenResources, List<Pair<XmlElement, String>> allSchemas, Map<String, String> fakeExternalLocationAliases, XmlElement schema, IModule currentModule ) {
-    String fakeUrl = "file:/" + null; // TODO FIXMEcurrentModule.getFileRepository().getResourceName( schemaUrl );
+    String fakeUrl = "file:/" + getResourceName( currentModule, schemaUrl );
     if ( schema.getQName().equals( Definitions.$QNAME ) ) {
       for ( XmlElement importElement : schema.getChildren( TDefinitions_Import.$QNAME ) ) {
         String wsdlLocation = importElement.getAttributeValue( "location" );
@@ -1042,7 +1044,7 @@ public class XmlSchemaIndex<T> {
       try {
         String externalLocation = entry.getKey();
         String localPath = entry.getValue();
-        String fakeUrl2 = "file:/" + null; // TODO FIXMEcurrentModule.getFileRepository().getResourceName( new URL( localPath ) );
+        String fakeUrl2 = "file:/" + getResourceName( currentModule, new URL( localPath ) );
         fakeExternalLocationAliases.put( externalLocation, fakeUrl2 );
       }
       catch ( Exception ex ) {
@@ -1103,10 +1105,9 @@ public class XmlSchemaIndex<T> {
       _indexed = true;
       try {
         readSchema( _schemaEF, null, caches );
-        //TODO FIXME do we need this?
-//        if (!CommonServices.getPlatformHelper().isInIDE()) {
-//          validate( caches );
-//        }
+        if (ExecutionMode.isIDE()) {
+          validate( caches );
+        }
         String schemaAccessTypeName = _packageName + ".util";
         _allTypeNames.addAll( getAdditionalTypeNames() );
         _allTypeNames.add( schemaAccessTypeName );
@@ -1185,7 +1186,7 @@ public class XmlSchemaIndex<T> {
         continue;
       }
       IFile file = CommonServices.getFileSystem().getIFile(resourceURL);
-      String resourceName = null; // TODO FIXMEm.pathRelativeToRoot(file);
+      String resourceName = getPathRelativeToRoot( m, file );
       if (resourceName != null) {
         return normalizeSchemaNamespace( getGosuNamespaceWithoutNormalization( resourceURL, m ), resourceName );
       }
@@ -1194,10 +1195,11 @@ public class XmlSchemaIndex<T> {
   }
 
   public static String getGosuNamespaceWithoutNormalization( URL resourceURL, IModule module ) {
-    if (isLocal(resourceURL)) {
-      IFileSystemGosuClassRepository fileRepository = module.getFileRepository();
-      String path = null; // TODO FIXMEfileRepository.getResourceName(resourceURL);
-      if ( ! Character.isLetter( path.charAt( 0 ) ) ) {
+    if (isLocal(resourceURL))
+    {
+      String path = getResourceName( module, resourceURL );
+      if( !Character.isLetter( path.charAt( 0 ) ) )
+      {
         // logic below relies on this... It's changed over time to starting with ./, /, etc
         throw new IllegalStateException( "Expected " + path + " to start with a letter" );
       }
@@ -1784,8 +1786,7 @@ public class XmlSchemaIndex<T> {
         }
       }
       else {
-        IFileSystemGosuClassRepository fileRepository = module.getFileRepository();
-        String resourceName = null; // TODO FIXMEfileRepository.getResourceName(targetURL);
+        String resourceName = getResourceName(module, targetURL);
         IFile foundFile = findFile(module, resourceName);
         if ( foundFile == null ) {
           throw new XmlException( "Unable to resolve resource with location '" + systemId + "' relative to '" + baseURL + "' with namespace '" + namespaceURI + "'" );
@@ -1876,12 +1877,11 @@ public class XmlSchemaIndex<T> {
   }
 
   private static Iterable<? extends IFile> getSchemaLocationsFiles(IModule module) {
-    //TODO FIXME do we need this?
-//    if (CommonServices.getPlatformHelper().isInIDE()) {
-//      module = TypeSystem.getGlobalModule();
-//    }
+    if (ExecutionMode.isIDE()) {
+      module = TypeSystem.getGlobalModule();
+    }
     Set<IFile> result = new LinkedHashSet<IFile>();
-    result.addAll(findAllFiles("config/xml/schemalocations.xml", null)); //TODO FIXME module.getRoots()));
+    result.addAll(findAllFiles("config/xml/schemalocations.xml", getSourceRoots( module )));
 
     // XML module itself now has this file inside "sources path"
     result.addAll(findAllFiles("xml/schemalocations.xml", module.getSourcePath()));
@@ -2284,8 +2284,7 @@ public class XmlSchemaIndex<T> {
   }
 
   public String getXSDSourcePath() {
-    IFileSystemGosuClassRepository fileRepository = getTypeLoader().getModule().getFileRepository();
-    String resourceName = null; // TODO FIXMEfileRepository.getResourceName( _xmlSchemaSource.getBlueprintURL() );
+    String resourceName = getResourceName( getTypeLoader().getModule(), _xmlSchemaSource.getBlueprintURL() );
     if ( resourceName.startsWith( "/" ) ) {
       resourceName = resourceName.substring( 1 );
     }
@@ -2470,6 +2469,38 @@ public class XmlSchemaIndex<T> {
       }
     }
     return xsdType;
+  }
+
+  //==============================================================================
+  // Gosu 1.6 Port Implemenation
+  //==============================================================================
+
+  public static String getResourceName(IModule module, URL url) {
+    IFile file = CommonServices.getFileSystem().getIFile(url);
+    String resourceName = getPathRelativeToRoot( module, file );
+    if (resourceName == null) {
+      throw new RuntimeException("Could not find resource " + url);
+    }
+    return resourceName;
+  }
+
+  private static List<? extends IDirectory> getSourceRoots( IModule module )
+  {
+    //TODO FIXME - CORRECT SUBSTITUTION?
+    // return module.getRoots();
+    return module.getSourcePath();
+  }
+
+  public static String getPathRelativeToRoot( IModule module, IResource file )
+  {
+    //TODO FIXME - HOW IS THIS IMPLEMENTED?
+    return null; //module.pathRelativeToRoot(file);
+  }
+
+  public static List<Pair<String, IFile>> findAllFilesByExtension( IModule module, String wscExtension )
+  {
+    // TODO FIXME - implement
+    return null;
   }
 
 }
