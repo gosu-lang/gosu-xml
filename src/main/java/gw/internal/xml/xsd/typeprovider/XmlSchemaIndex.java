@@ -1881,7 +1881,8 @@ public class XmlSchemaIndex<T> {
       module = TypeSystem.getGlobalModule();
     }
     Set<IFile> result = new LinkedHashSet<IFile>();
-    result.addAll(findAllFiles("config/xml/schemalocations.xml", getSourceRoots( module )));
+// This is specific to Guhwuh and not really needed anymore
+//    result.addAll(findAllFiles("config/xml/schemalocations.xml", getSourceRoots( module )));
 
     // XML module itself now has this file inside "sources path"
     result.addAll(findAllFiles("xml/schemalocations.xml", module.getSourcePath()));
@@ -2486,21 +2487,56 @@ public class XmlSchemaIndex<T> {
 
   private static List<? extends IDirectory> getSourceRoots( IModule module )
   {
-    //TODO FIXME - CORRECT SUBSTITUTION?
-    // return module.getRoots();
     return module.getSourcePath();
   }
 
-  public static String getPathRelativeToRoot( IModule module, IResource file )
-  {
-    //TODO FIXME - HOW IS THIS IMPLEMENTED?
-    return null; //module.pathRelativeToRoot(file);
-  }
-
-  public static List<Pair<String, IFile>> findAllFilesByExtension( IModule module, String wscExtension )
-  {
-    // TODO FIXME - implement
+  public static String getPathRelativeToRoot( IModule module, IResource file ) {
+    for( IDirectory root : getSourceRoots( module ) ) {
+      if( file.isDescendantOf( root ) ) {
+        return root.relativePath( file );
+      }
+    }
     return null;
   }
 
+  public static List<Pair<String, IFile>> findAllFilesByExtension( IModule module, String extension ) {
+    List<Pair<String, IFile>> results = new ArrayList<>();
+
+    for (IDirectory sourceEntry : module.getSourcePath()) {
+      if (sourceEntry.exists()) {
+        String prefix = sourceEntry.getName().equals(IModule.CONFIG_RESOURCE_PREFIX) ? IModule.CONFIG_RESOURCE_PREFIX : "";
+        addAllLocalResourceFilesByExtensionInternal(module, prefix, sourceEntry, extension, results);
+      }
+    }
+    return results;
+  }
+
+  private static void addAllLocalResourceFilesByExtensionInternal( IModule module, String relativePath, IDirectory dir, String extension, List<Pair<String, IFile>> results ) {
+    List<IDirectory> excludedPath = Arrays.asList(module.getFileRepository().getExcludedPath());
+    if ( excludedPath.contains( dir )) {
+      return;
+    }
+    if(!CommonServices.getPlatformHelper().isPathIgnored(relativePath)) {
+      for(IFile file : dir.listFiles()) {
+        if(file.getName().endsWith(extension)) {
+          String path = appendResourceNameToPath(relativePath, file.getName());
+          results.add(new Pair<>(path, file));
+        }
+      }
+      for(IDirectory subdir : dir.listDirs()) {
+        String path = appendResourceNameToPath(relativePath, subdir.getName());
+        addAllLocalResourceFilesByExtensionInternal(module, path, subdir, extension, results);
+      }
+    }
+  }
+
+  private static String appendResourceNameToPath(String relativePath, String resourceName) {
+    String path;
+    if(relativePath.length() > 0) {
+      path = relativePath + '/' + resourceName;
+    } else {
+      path = resourceName;
+    }
+    return path;
+  }
 }
