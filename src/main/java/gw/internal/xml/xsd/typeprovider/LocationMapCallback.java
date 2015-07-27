@@ -10,8 +10,6 @@ import gw.xml.XmlElement;
 import org.xml.sax.Locator;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LocationMapCallback implements XmlParserCallback {
 

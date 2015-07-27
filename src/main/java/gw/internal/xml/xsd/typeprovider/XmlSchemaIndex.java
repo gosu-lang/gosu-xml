@@ -264,8 +264,9 @@ public class XmlSchemaIndex<T> {
   public static final String WSDL_NAMESPACE = gw.internal.schema.gw.xsd.w3c.wsdl.Definitions.$QNAME.getNamespaceURI();
 
   // TODO dlank - could use a better caching strategy in the future
-  private static final WeakHashMap<List<XmlSchemaIndex>, Schema> _multiCompiledSchemaCache = new WeakHashMap<List<XmlSchemaIndex>, Schema>();
-  private static final WeakHashMap<XmlSchemaIndex, Schema> _singleCompiledSchemaCache = new WeakHashMap<XmlSchemaIndex, Schema>();
+  //## todo: rsm: these used to be Soft map and Weak map, respectively.  See about changing them back if appropriate.
+  private static final HashMap<List<XmlSchemaIndex>, Schema> _multiCompiledSchemaCache = new HashMap<List<XmlSchemaIndex>, Schema>();
+  private static final HashMap<XmlSchemaIndex, Schema> _singleCompiledSchemaCache = new HashMap<XmlSchemaIndex, Schema>();
 
   // the list of "built-in" datatypes. Not every simple type defined in the schema schema is considered present in
   // every schema, except the following. The only way to distinguish the simples types that are available from

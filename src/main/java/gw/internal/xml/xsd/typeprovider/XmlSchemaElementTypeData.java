@@ -13,7 +13,6 @@ import gw.internal.xml.xsd.typeprovider.schema.XmlSchemaType;
 import gw.lang.reflect.ConstructorInfoBuilder;
 import gw.lang.reflect.IConstructorHandler;
 import gw.lang.reflect.IConstructorInfo;
-import gw.lang.reflect.ILocationAwareFeature;
 import gw.lang.reflect.IMethodCallHandler;
 import gw.lang.reflect.IMethodInfo;
 import gw.lang.reflect.IPropertyAccessor;
@@ -49,7 +48,7 @@ import java.util.List;
 /**
  * IType for statically typed XmlElement types.
  */
-public class XmlSchemaElementTypeData<T> extends XmlSchemaTypeData<T> implements IXmlSchemaElementTypeData<T>, ILocationAwareFeature {
+public class XmlSchemaElementTypeData<T> extends XmlSchemaTypeData<T> implements IXmlSchemaElementTypeData<T> {
 
   private static final String TYPEINSTANCE_PROPERTY_NAME = "$TypeInstance";
   private static final String QNAME_PROPERTY_NAME = "$QNAME";
@@ -491,7 +490,7 @@ public class XmlSchemaElementTypeData<T> extends XmlSchemaTypeData<T> implements
   @Override
   public List<Class<?>> getAdditionalInterfaces() {
     //noinspection unchecked
-    return Arrays.asList( IXmlSchemaElementTypeData.class, ILocationAwareFeature.class );
+    return Arrays.asList( IXmlSchemaElementTypeData.class );
   }
 
   public XmlSchemaTypeSchemaInfo getSchemaInfo() {

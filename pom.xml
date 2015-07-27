@@ -8,16 +8,22 @@
 
   <name>Gosu :: XML Type Loader</name>
 
+  <properties>
+    <gosu.version>1-spec-SNAPSHOT</gosu.version>
+    <dist.man.snapshotrepo.url>http://gosu-lang.org/nexus/content/repositories/snapshots</dist.man.snapshotrepo.url>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.gosu-lang.gosu</groupId>
       <artifactId>gosu-core-api</artifactId>
-      <version>1.6.1</version>
+      <version>${gosu.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.gosu-lang.gosu</groupId>
       <artifactId>gosu-core</artifactId>
-      <version>1.6.1</version>
+      <version>${gosu.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

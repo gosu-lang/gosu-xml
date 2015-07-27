@@ -27,7 +27,6 @@ import gw.internal.xml.xsd.typeprovider.validator.XmlSimpleValueValidator;
 import gw.lang.reflect.ConstructorInfoBuilder;
 import gw.lang.reflect.IConstructorHandler;
 import gw.lang.reflect.IConstructorInfo;
-import gw.lang.reflect.ILocationAwareFeature;
 import gw.lang.reflect.IMethodInfo;
 import gw.lang.reflect.IPropertyAccessor;
 import gw.lang.reflect.IPropertyInfo;
@@ -67,7 +66,7 @@ import java.util.Set;
 /**
  * IType for statically typed XmlTypeInstance types. See XmlTypeInstance for a discussion of what an XmlTypeInstance is. 
  */
-public class XmlSchemaTypeInstanceTypeData<T> extends XmlSchemaTypeData<T> implements IXmlSchemaTypeInstanceTypeData<T>, ILocationAwareFeature {
+public class XmlSchemaTypeInstanceTypeData<T> extends XmlSchemaTypeData<T> implements IXmlSchemaTypeInstanceTypeData<T> {
 
   private boolean _initialized;
   private XmlSchemaTypeSchemaInfo _schemaInfo;
@@ -788,7 +787,7 @@ public class XmlSchemaTypeInstanceTypeData<T> extends XmlSchemaTypeData<T> imple
   @Override
   public List<Class<?>> getAdditionalInterfaces() {
     //noinspection unchecked
-    return Arrays.asList( IXmlSchemaTypeInstanceTypeData.class, ILocationAwareFeature.class );
+    return Arrays.asList( IXmlSchemaTypeInstanceTypeData.class );
   }
 
   public XmlSchemaTypeInstanceTypeData getSuperTypeData() {
