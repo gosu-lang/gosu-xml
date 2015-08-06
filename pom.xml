@@ -9,25 +9,11 @@
   <name>Gosu :: XML Type Loader</name>
 
   <properties>
-    <gosu.version>1-spec-SNAPSHOT</gosu.version>
-    <dist.man.repo.url>http://gosu-lang.org/nexus/content/repositories/gosu</dist.man.repo.url>
-    <dist.man.snapshotrepo.url>http://gosu-lang.org/nexus/content/repositories/snapshots</dist.man.snapshotrepo.url>
+    <gosu.version>1.7</gosu.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <repositories>
-    <repository>
-      <id>gosu-lang.org-gosu</id>
-      <name>Official Gosu website (gosu)</name>
-      <url>http://gosu-lang.org/nexus/content/repositories/gosu</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-
     <repository>
       <id>gosu-lang.org-snapshots</id>
       <name>Official Gosu website (snapshots)</name>
@@ -71,6 +57,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <archive>
             <manifestEntries>
@@ -79,40 +66,6 @@
             </manifestEntries>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <artifactSet>
-            <excludes>
-              <exclude>org.gosu-lang.gosu:gosu-launcher-api</exclude>
-              <exclude>org.gosu-lang.gosu:gosu-launcher-impl</exclude>
-              <exclude>org.gosu-lang.gosu:gosu-core-api</exclude>
-              <exclude>org.gosu-lang.gosu:gosu-core</exclude>
-            </excludes>
-          </artifactSet>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
