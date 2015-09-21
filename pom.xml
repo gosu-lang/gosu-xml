@@ -13,16 +13,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <!-- The old Gosu releases repo; this is necessary to resolve gw-xercesImpl -->
   <repositories>
     <repository>
-      <id>gosu-lang.org-snapshots</id>
-      <name>Official Gosu website (snapshots)</name>
-      <url>http://gosu-lang.org/nexus/content/repositories/snapshots</url>
+      <id>gosu-lang.org-gosu</id>
+      <name>Official Gosu website (gosu)</name>
+      <url>http://gosu-lang.org/nexus/content/repositories/gosu/</url>
       <releases>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </releases>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
   </repositories>
